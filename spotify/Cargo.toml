@@ -1,6 +1,6 @@
 [package]
 name = "melomango-spotify"
-version = "0.1.0"
+version = "0.1.1"
 description = "Plugin de Melomango: importa tus playlists, Me gusta y álbumes de Spotify (solo metadatos)"
 edition = "2024"
 

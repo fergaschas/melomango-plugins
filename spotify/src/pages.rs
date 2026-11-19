@@ -41,7 +41,9 @@ pub fn setup(redirect_uri: &str, current_client_id: &str, invalid: bool) -> Stri
         r#"<h1>🥭 Conecta Melomango con Spotify</h1>
 <p class="lead">Melomango solo <strong>lee</strong> tus playlists, tus canciones que te gustan y tus álbumes guardados.
 No reproduce música desde Spotify ni puede cambiar nada de tu cuenta.</p>
-<p>Necesitas tu propia app de Spotify (es gratis y lleva un par de minutos):</p>
+<p>Necesitas tu propia app de Spotify (es gratis y lleva un par de minutos). Spotify solo la deja usar si tu cuenta
+es <strong>Premium</strong>; si no lo es, cierra esta página e importa tu exportación de datos desde
+Melomango (<em>Importar playlists → Exportación de datos de Spotify</em>).</p>
 <ol>
   <li>Abre <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noreferrer">developer.spotify.com/dashboard</a>
       e inicia sesión con tu cuenta de Spotify.</li>

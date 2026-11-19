@@ -4,6 +4,10 @@ Importa en Melomango tus **playlists**, tus **canciones que te gustan** y tus **
 Solo lee metadatos (permisos `playlist-read-private`, `playlist-read-collaborative` y `user-library-read`):
 no reproduce desde Spotify ni modifica tu cuenta. Melomango reproduce cada canción buscándola en YouTube.
 
+> Necesitas **Spotify Premium**: desde febrero de 2026, Spotify solo deja usar apps de desarrollador cuyo dueño
+> tenga Premium. Sin Premium, importa tu exportación de datos de Spotify desde Melomango
+> (**Importar playlists → Exportación de datos de Spotify**).
+
 ## Configuración (una vez)
 
 Al pulsar **Conectar Spotify** en Melomango se abre una página local (`http://127.0.0.1:43821/`) con los pasos:
@@ -20,8 +24,8 @@ solo en tu equipo, en la carpeta de datos del plugin (`MELOMANGO_DATA_DIR`). Al 
 - Solo se pueden leer las playlists que has creado o en las que colaboras; las que solo sigues devuelven 403 y
   aparecen como «No disponible».
 - Las playlists editoriales y algorítmicas de Spotify no están disponibles para apps nuevas.
-- En modo desarrollo, una app de Spotify solo admite a los usuarios que su dueño añade (hasta 25). Por eso cada
-  persona usa su propia app.
+- En modo desarrollo, una app de Spotify solo admite a los usuarios que su dueño añade (hasta 5 en apps nuevas) y
+  exige que el dueño tenga Premium. Por eso cada persona usa su propia app.
 
 ## Probar a mano
 
