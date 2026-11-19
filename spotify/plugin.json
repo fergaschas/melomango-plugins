@@ -1,0 +1,12 @@
+{
+  "id": "spotify",
+  "name": "Spotify",
+  "version": "0.1.0",
+  "protocol": 1,
+  "description": "Importa tus playlists, canciones que te gustan y álbumes de Spotify. Solo metadatos: la música suena desde YouTube.",
+  "executable": "melomango-spotify",
+  "capabilities": ["library"],
+  "author": "Melomango",
+  "homepage": "https://github.com/fergaschas/melomango-plugins/tree/main/spotify",
+  "tags": ["spotify", "playlists", "importar", "biblioteca"]
+}
