@@ -1,0 +1,20 @@
+[package]
+name = "melomango-youtube"
+version = "0.1.0"
+description = "Plugin de Melomango: todo el catálogo de YouTube vía yt-dlp"
+edition = "2024"
+
+[[bin]]
+name = "melomango-youtube"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

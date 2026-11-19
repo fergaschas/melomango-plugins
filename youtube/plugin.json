@@ -1,0 +1,12 @@
+{
+  "id": "youtube",
+  "name": "YouTube",
+  "version": "0.1.0",
+  "protocol": 1,
+  "description": "Todo el catálogo de YouTube, vía yt-dlp. Requiere tener yt-dlp instalado.",
+  "executable": "melomango-youtube",
+  "capabilities": ["search", "trending"],
+  "author": "Melomango",
+  "homepage": "https://github.com/fergaschas/melomango-plugins/tree/main/youtube",
+  "tags": ["youtube", "vídeo", "música", "yt-dlp"]
+}
