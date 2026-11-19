@@ -9,6 +9,7 @@
 //! the WinGet links folder (Windows), and finally the PATH.
 
 mod clean;
+mod requirements;
 
 use std::{
     env,
@@ -59,7 +60,9 @@ fn run() -> anyhow::Result<()> {
             TRENDING_PLAYLIST,
         ])?),
         ["stream", id] => stream(id)?,
-        _ => bail!("uso: melomango-youtube <search QUERY | trending | stream ID>"),
+        ["requirements"] => requirements::list(),
+        ["install-requirement", id] => requirements::install(id)?,
+        _ => bail!("uso: melomango-youtube <search QUERY | trending | stream ID | requirements | install-requirement ID>"),
     };
     println!("{output}");
     Ok(())
@@ -145,6 +148,21 @@ fn find_ytdlp() -> Option<PathBuf> {
     ];
     if let Some(found) = candidates.into_iter().flatten().find(|p| p.is_file()) {
         return Some(found);
+    }
+    // Without permission to create the Links shortcut, winget leaves it in its package folder
+    // and only updates the PATH of new sessions.
+    if let Some(local) = env::var_os("LOCALAPPDATA") {
+        let packages = PathBuf::from(local).join("Microsoft/WinGet/Packages");
+        if let Ok(entries) = std::fs::read_dir(packages) {
+            let found = entries
+                .flatten()
+                .filter(|e| e.file_name().to_string_lossy().starts_with("yt-dlp.yt-dlp_"))
+                .map(|e| e.path().join(exe_name))
+                .find(|p| p.is_file());
+            if found.is_some() {
+                return found;
+            }
+        }
     }
     // Fall back to the PATH.
     let path = env::var_os("PATH")?;
