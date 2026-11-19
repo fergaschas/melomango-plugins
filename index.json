@@ -25,7 +25,7 @@
     {
       "id": "youtube",
       "name": "YouTube",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "description": "Todo el catálogo de YouTube, vía yt-dlp (se instala automáticamente con winget).",
       "author": "Melomango",
       "homepage": "https://github.com/fergaschas/melomango-plugins/tree/main/youtube",
@@ -37,8 +37,8 @@
       ],
       "downloads": {
         "windows-x86_64": {
-          "url": "https://github.com/fergaschas/melomango-plugins/releases/download/youtube-v0.2.0/youtube-0.2.0-windows-x86_64.zip",
-          "sha256": "d5c6f961b854b9d8277642131a87b1242a199ed76815212b43af5d9c343d7deb"
+          "url": "https://github.com/fergaschas/melomango-plugins/releases/download/youtube-v0.2.1/youtube-0.2.1-windows-x86_64.zip",
+          "sha256": "1933ba5e7a791a89bd62b99398ea99251da31cba35df2f0c4b77e87dd7bf5a72"
         }
       }
     }
