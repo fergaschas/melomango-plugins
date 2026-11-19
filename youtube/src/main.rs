@@ -5,10 +5,11 @@
 //!   melomango-youtube trending         -> {"tracks": [...]}
 //!   melomango-youtube stream <id>      -> {"url": "...", "headers": {...}}
 //!
-//! yt-dlp is looked up in this order: $MELOMANGO_YTDLP, next to this executable,
-//! the WinGet links folder (Windows), and finally the PATH.
+//! yt-dlp is looked up in this order: $MELOMANGO_YTDLP, the copy this plugin manages
+//! (see `managed`), next to this executable, WinGet's folders (Windows), and the PATH.
 
 mod clean;
+mod managed;
 mod requirements;
 
 use std::{
@@ -29,8 +30,9 @@ const MAX_DURATION_SECS: f64 = 20.0 * 60.0;
 /// Prefer AAC in MP4: every WebView plays it.
 const AUDIO_FORMAT: &str = "bestaudio[ext=m4a]/bestaudio[acodec^=mp4a]/bestaudio";
 /// The visionOS client is ~1.5 s faster to extract and its URLs work immediately (the
-/// default clients' URLs answer 403 for ~2 s). yt-dlp's defaults remain the fallback.
-const FAST_CLIENT: &str = "youtube:player_client=visionos";
+/// default clients' URLs answer 403 for ~2 s). Skipping the HLS manifest saves ~0.4 s more:
+/// the audio comes as a plain HTTPS format. yt-dlp's defaults remain the fallback.
+const FAST_CLIENT: &str = "youtube:player_client=visionos;skip=hls";
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -51,7 +53,11 @@ fn main() {
 
 fn run() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().skip(1).collect();
-    let output = match args.iter().map(String::as_str).collect::<Vec<_>>().as_slice() {
+    let args: Vec<&str> = args.iter().map(String::as_str).collect();
+    if matches!(args.first(), Some(&("search" | "trending" | "stream"))) {
+        managed::update_in_background();
+    }
+    let output = match args.as_slice() {
         ["search", query] => tracks(&ytdlp_json(&[
             "--flat-playlist",
             &format!("ytsearch{SEARCH_RESULTS}:{query}"),
@@ -65,7 +71,10 @@ fn run() -> anyhow::Result<()> {
         ["stream", id] => stream(id)?,
         ["requirements"] => requirements::list(),
         ["install-requirement", id] => requirements::install(id)?,
-        _ => bail!("uso: melomango-youtube <search QUERY | trending | stream ID | requirements | install-requirement ID>"),
+        ["update-ytdlp"] => json!({ "path": managed::update()? }),
+        _ => bail!(
+            "uso: melomango-youtube <search QUERY | trending | stream ID | requirements | install-requirement ID | update-ytdlp>"
+        ),
     };
     println!("{output}");
     Ok(())
@@ -147,6 +156,7 @@ fn find_ytdlp() -> Option<PathBuf> {
     let exe_name = if cfg!(windows) { "yt-dlp.exe" } else { "yt-dlp" };
     let candidates = [
         env::var_os("MELOMANGO_YTDLP").map(PathBuf::from),
+        managed::executable(),
         env::current_exe().ok().and_then(|p| Some(p.parent()?.join(exe_name))),
         env::var_os("LOCALAPPDATA").map(|d| PathBuf::from(d).join("Microsoft/WinGet/Links").join(exe_name)),
     ];

@@ -1,9 +1,9 @@
 {
   "id": "youtube",
   "name": "YouTube",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "protocol": 1,
-  "description": "Todo el catálogo de YouTube, vía yt-dlp (se instala automáticamente con winget).",
+  "description": "Todo el catálogo de YouTube, vía yt-dlp (el plugin lo instala y lo mantiene al día).",
   "executable": "melomango-youtube",
   "capabilities": [
     "search",

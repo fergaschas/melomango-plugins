@@ -3,14 +3,15 @@
 //!   melomango-youtube requirements                -> {"requirements": [Requirement]}
 //!   melomango-youtube install-requirement yt-dlp  -> {"requirements": [Requirement]} once installed
 //!
-//! Installation uses winget (Windows); elsewhere the user installs yt-dlp by hand.
+//! On Windows the plugin downloads its own, faster copy of yt-dlp (see `managed`), with
+//! winget as a fallback; elsewhere the user installs yt-dlp by hand.
 
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 use anyhow::{bail, Context};
 use serde_json::{json, Value};
 
-use crate::find_ytdlp;
+use crate::{find_ytdlp, managed, managed::hidden};
 
 const WINGET_ID: &str = "yt-dlp.yt-dlp";
 
@@ -19,9 +20,9 @@ pub fn list() -> Value {
         "requirements": [{
             "id": "yt-dlp",
             "name": "yt-dlp",
-            "description": "Programa libre que obtiene el audio de YouTube.",
+            "description": "Programa libre que obtiene el audio de YouTube. El plugin lo descarga de github.com/yt-dlp y lo mantiene al día.",
             "installed": find_ytdlp().is_some(),
-            "installable": winget_available(),
+            "installable": managed::supported() || winget_available(),
         }]
     })
 }
@@ -33,7 +34,15 @@ pub fn install(id: &str) -> anyhow::Result<Value> {
     if find_ytdlp().is_some() {
         return Ok(list());
     }
+    let managed_error = match managed::supported().then(managed::update) {
+        Some(Ok(_)) => return Ok(list()),
+        Some(Err(e)) => Some(e),
+        None => None,
+    };
     if !winget_available() {
+        if let Some(e) = managed_error {
+            return Err(e.context("no se pudo descargar yt-dlp"));
+        }
         bail!("winget no está disponible: instala yt-dlp a mano (https://github.com/yt-dlp/yt-dlp)");
     }
     let output = hidden(Command::new("winget").args([
@@ -68,15 +77,4 @@ fn winget_available() -> bool {
         && hidden(Command::new("winget").arg("--version"))
             .output()
             .is_ok_and(|o| o.status.success())
-}
-
-/// No console window, no stdin.
-fn hidden(cmd: &mut Command) -> &mut Command {
-    cmd.stdin(Stdio::null());
-    #[cfg(windows)]
-    {
-        use std::os::windows::process::CommandExt;
-        cmd.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
-    }
-    cmd
 }
