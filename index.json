@@ -3,6 +3,26 @@
   "name": "Melomango oficial",
   "plugins": [
     {
+      "id": "spotify",
+      "name": "Spotify",
+      "version": "0.1.0",
+      "description": "Importa tus playlists, canciones que te gustan y álbumes de Spotify. Solo metadatos: la música suena desde YouTube.",
+      "author": "Melomango",
+      "homepage": "https://github.com/fergaschas/melomango-plugins/tree/main/spotify",
+      "tags": [
+        "spotify",
+        "playlists",
+        "importar",
+        "biblioteca"
+      ],
+      "downloads": {
+        "windows-x86_64": {
+          "url": "https://github.com/fergaschas/melomango-plugins/releases/download/spotify-v0.1.0/spotify-0.1.0-windows-x86_64.zip",
+          "sha256": "5cdffe04a9a6e6b89e6b2ad8a66aaee4f24159c113e9807d65fd7c455b9660d8"
+        }
+      }
+    },
+    {
       "id": "youtube",
       "name": "YouTube",
       "version": "0.1.0",
