@@ -28,6 +28,9 @@ const TRENDING_PLAYLIST: &str = "https://www.youtube.com/playlist?list=PL4fGSI1p
 const MAX_DURATION_SECS: f64 = 20.0 * 60.0;
 /// Prefer AAC in MP4: every WebView plays it.
 const AUDIO_FORMAT: &str = "bestaudio[ext=m4a]/bestaudio[acodec^=mp4a]/bestaudio";
+/// The visionOS client is ~1.5 s faster to extract and its URLs work immediately (the
+/// default clients' URLs answer 403 for ~2 s). yt-dlp's defaults remain the fallback.
+const FAST_CLIENT: &str = "youtube:player_client=visionos";
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -100,12 +103,13 @@ fn stream(id: &str) -> anyhow::Result<Value> {
     if !is_video_id(id) {
         bail!("id de vídeo no válido: {id}");
     }
-    let info = ytdlp_json(&[
-        "--no-playlist",
-        "-f",
-        AUDIO_FORMAT,
-        &format!("https://www.youtube.com/watch?v={id}"),
-    ])?;
+    let url = format!("https://www.youtube.com/watch?v={id}");
+    let base = ["--no-playlist", "-f", AUDIO_FORMAT];
+    let fast = [&base[..], &["--extractor-args", FAST_CLIENT, &url]].concat();
+    let info = match ytdlp_json(&fast) {
+        Ok(info) if info["url"].is_string() => info,
+        _ => ytdlp_json(&[&base[..], &[url.as_str()]].concat())?,
+    };
     let url = info["url"].as_str().context("yt-dlp no devolvió URL de audio")?;
     Ok(json!({ "url": url, "headers": info["http_headers"] }))
 }
