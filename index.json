@@ -1,5 +1,26 @@
 {
   "version": 1,
   "name": "Melomango oficial",
-  "plugins": []
+  "plugins": [
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "version": "0.1.0",
+      "description": "Todo el catálogo de YouTube, vía yt-dlp. Requiere tener yt-dlp instalado.",
+      "author": "Melomango",
+      "homepage": "https://github.com/fergaschas/melomango-plugins/tree/main/youtube",
+      "tags": [
+        "youtube",
+        "vídeo",
+        "música",
+        "yt-dlp"
+      ],
+      "downloads": {
+        "windows-x86_64": {
+          "url": "https://github.com/fergaschas/melomango-plugins/releases/download/youtube-v0.1.0/youtube-0.1.0-windows-x86_64.zip",
+          "sha256": "870e30a806d4b6846c9fc989cff2e9008943bd807433b58f4d45d6564c7b3570"
+        }
+      }
+    }
+  ]
 }
