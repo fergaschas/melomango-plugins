@@ -5,6 +5,7 @@
 //!   melomango-youtube trending         -> {"tracks": [...]}
 //!   melomango-youtube stream <id>      -> {"url": "...", "headers": {...}}
 //!   melomango-youtube radio <id>       -> {"tracks": [...]} songs like it (YouTube's "Mix")
+//!   melomango-youtube playlist <id>    -> {"title": "...", "tracks": [...]} a YouTube (Music) playlist
 //!
 //! yt-dlp is looked up in this order: $MELOMANGO_YTDLP, the copy this plugin manages
 //! (see `managed`), next to this executable, WinGet's folders (Windows), and the PATH.
@@ -57,7 +58,7 @@ fn main() {
 fn run() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     let args: Vec<&str> = args.iter().map(String::as_str).collect();
-    if matches!(args.first(), Some(&("search" | "trending" | "stream" | "radio"))) {
+    if matches!(args.first(), Some(&("search" | "trending" | "stream" | "radio" | "playlist"))) {
         managed::update_in_background();
     }
     let output = match args.as_slice() {
@@ -73,11 +74,12 @@ fn run() -> anyhow::Result<()> {
         ])?),
         ["stream", id] => stream(id)?,
         ["radio", id] => radio(id)?,
+        ["playlist", id] => playlist(id)?,
         ["requirements"] => requirements::list(),
         ["install-requirement", id] => requirements::install(id)?,
         ["update-ytdlp"] => json!({ "path": managed::update()? }),
         _ => bail!(
-            "uso: melomango-youtube <search QUERY | trending | stream ID | radio ID | requirements | install-requirement ID | update-ytdlp>"
+            "uso: melomango-youtube <search QUERY | trending | stream ID | radio ID | playlist ID | requirements | install-requirement ID | update-ytdlp>"
         ),
     };
     println!("{output}");
@@ -143,6 +145,18 @@ fn radio(id: &str) -> anyhow::Result<Value> {
     if let Some(list) = result["tracks"].as_array_mut() {
         list.retain(|t| t["id"].as_str() != Some(id));
     }
+    Ok(result)
+}
+
+/// The songs of a YouTube or YouTube Music playlist (also albums, `OLAK5uy_…`).
+fn playlist(id: &str) -> anyhow::Result<Value> {
+    if id.is_empty() || id.len() > 64 || !id.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_') {
+        bail!("id de playlist no válido: {id}");
+    }
+    let list = ytdlp_json(&["--flat-playlist", &format!("https://www.youtube.com/playlist?list={id}")])?;
+    let mut result = tracks(&list);
+    let title = list["title"].as_str().unwrap_or("Playlist de YouTube").trim_start_matches("Album - ");
+    result["title"] = json!(title);
     Ok(result)
 }
 
