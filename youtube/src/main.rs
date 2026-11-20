@@ -4,6 +4,7 @@
 //!   melomango-youtube search <query>   -> {"tracks": [...]}
 //!   melomango-youtube trending         -> {"tracks": [...]}
 //!   melomango-youtube stream <id>      -> {"url": "...", "headers": {...}}
+//!   melomango-youtube radio <id>       -> {"tracks": [...]} songs like it (YouTube's "Mix")
 //!
 //! yt-dlp is looked up in this order: $MELOMANGO_YTDLP, the copy this plugin manages
 //! (see `managed`), next to this executable, WinGet's folders (Windows), and the PATH.
@@ -23,6 +24,8 @@ use serde::Serialize;
 use serde_json::{json, Value};
 
 const SEARCH_RESULTS: u32 = 25;
+/// Songs taken from a video's "Mix" playlist for the radio.
+const RADIO_RESULTS: u32 = 40;
 /// Weekly "Top 100 Songs Global" chart published by YouTube Music.
 const TRENDING_PLAYLIST: &str = "https://www.youtube.com/playlist?list=PL4fGSI1pDJn6puJdseH2Rt9sMvt9E2M4i";
 /// Longer results are usually hour-long mixes, not songs.
@@ -54,7 +57,7 @@ fn main() {
 fn run() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     let args: Vec<&str> = args.iter().map(String::as_str).collect();
-    if matches!(args.first(), Some(&("search" | "trending" | "stream"))) {
+    if matches!(args.first(), Some(&("search" | "trending" | "stream" | "radio"))) {
         managed::update_in_background();
     }
     let output = match args.as_slice() {
@@ -69,11 +72,12 @@ fn run() -> anyhow::Result<()> {
             TRENDING_PLAYLIST,
         ])?),
         ["stream", id] => stream(id)?,
+        ["radio", id] => radio(id)?,
         ["requirements"] => requirements::list(),
         ["install-requirement", id] => requirements::install(id)?,
         ["update-ytdlp"] => json!({ "path": managed::update()? }),
         _ => bail!(
-            "uso: melomango-youtube <search QUERY | trending | stream ID | requirements | install-requirement ID | update-ytdlp>"
+            "uso: melomango-youtube <search QUERY | trending | stream ID | radio ID | requirements | install-requirement ID | update-ytdlp>"
         ),
     };
     println!("{output}");
@@ -121,6 +125,25 @@ fn stream(id: &str) -> anyhow::Result<Value> {
     };
     let url = info["url"].as_str().context("yt-dlp no devolvió URL de audio")?;
     Ok(json!({ "url": url, "headers": info["http_headers"] }))
+}
+
+/// Songs like `id`, from the "Mix" playlist YouTube builds for every video (without the
+/// video itself).
+fn radio(id: &str) -> anyhow::Result<Value> {
+    if !is_video_id(id) {
+        bail!("id de vídeo no válido: {id}");
+    }
+    let mix = ytdlp_json(&[
+        "--flat-playlist",
+        "--playlist-end",
+        &RADIO_RESULTS.to_string(),
+        &format!("https://www.youtube.com/watch?v={id}&list=RD{id}"),
+    ])?;
+    let mut result = tracks(&mix);
+    if let Some(list) = result["tracks"].as_array_mut() {
+        list.retain(|t| t["id"].as_str() != Some(id));
+    }
+    Ok(result)
 }
 
 fn is_video_id(id: &str) -> bool {

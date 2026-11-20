@@ -10,7 +10,7 @@ con un clic. Cada descarga se comprueba con su huella SHA-256 antes de instalars
 
 | Plugin | Descripción | Plataformas |
 |---|---|---|
-| [YouTube](youtube) | Todo el catálogo de YouTube, vía [yt-dlp](https://github.com/yt-dlp/yt-dlp), que el plugin descarga de sus releases oficiales (comprobando la huella SHA-256) y mantiene al día solo; winget queda de respaldo. | Windows x64 |
+| [YouTube](youtube) | Todo el catálogo de YouTube, vía [yt-dlp](https://github.com/yt-dlp/yt-dlp), que el plugin descarga de sus releases oficiales (comprobando la huella SHA-256) y mantiene al día solo; winget queda de respaldo. Da canciones parecidas para la radio automática. | Windows x64 |
 | [Spotify](spotify) | Importa tus playlists, Me gusta y álbumes de Spotify (solo metadatos; suenan desde YouTube). Necesita Premium y tu propio Client ID de [developer.spotify.com](https://developer.spotify.com/dashboard). Sin Premium, Melomango importa tu exportación de datos de Spotify sin plugin. | Windows x64 |
 
 > ⚖️ Reproducir YouTube fuera de su reproductor va contra sus Términos de Servicio. Úsalo para uso personal y
